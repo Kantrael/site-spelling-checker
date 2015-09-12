@@ -4,8 +4,60 @@
 
 .page-title {
     font-weight: bold;
+    margin-left: 5px;
 }
 
 .result-label {
     margin-bottom: 30px;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.panel-heading {
+    white-space: nowrap;
+    height: 43px;
+}
+
+.panel-heading-content {
+    max-width: 90%;
+    float: left !important;
+}
+
+.panel-heading-content span {
+    font-size: 15px;
+    vertical-align: middle;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.page-title, .page-url {
+    max-width: 45%;
+}
+
+.dash {
+    margin-right: 10px;
+}
+
+.pull-right i {
+    vertical-align: middle;
+}
+
+.panel-body {
+    display: none;
+}
+
+.misspell-row {
+    margin-bottom: 5px;
+}
+
+.misspelled-word {
+    color: #d43f3a;
+    font-weight: bold;
+}
+
+.word-misspell-times {
+    font-style: italic;
 }
