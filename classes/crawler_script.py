@@ -11,20 +11,14 @@ class CrawlerScript():
         self.crawler = CrawlerProcess(get_project_settings())
 
     def _crawl(self, url):
-        print "Entered URL: " + url
-
         domain = urlparse(url).netloc
-        print "Domain is: " + domain
 
         self.crawler.crawl(MisspelledWordsSpider, start_url=url, allowed_domains=[domain])
         self.crawler.start()
         self.crawler.stop()
 
     def crawl(self, url):
+        pass
         p = Process(target=self._crawl, args=[url])
         p.start()
         p.join()
-
-    def stop(self):
-        self.crawler.stop()
-        
