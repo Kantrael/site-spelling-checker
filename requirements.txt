@@ -5,3 +5,5 @@ Jinja2==2.6
 Scrapy==1.0.3
 virtualenv==13.1.2
 Werkzeug==0.8.3
+cryptography==1.0.1
+
