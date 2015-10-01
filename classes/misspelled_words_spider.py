@@ -3,9 +3,12 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.exceptions import CloseSpider, IgnoreRequest
 
+class TestItem(scrapy.Item):
+    """Test item"""
+
 class MisspelledWordsSpider(CrawlSpider):
     MAX_PAGES_WITH_MISSPELLS = 10
-    MAX_PROCESSED_PAGES = 15
+    MAX_PROCESSED_PAGES = 5
 
     name = 'misspelled_words_spider'
     pages_with_misspells = 0
@@ -13,63 +16,46 @@ class MisspelledWordsSpider(CrawlSpider):
     active = True
 
     custom_settings = {
-        'DOWNLOADER_MIDDLEWARES': {'classes.misspelled_words_spider.SpiderStatusMiddleware': None},
-        'CONCURRENT_REQUESTS': 1,
-        'CONCURRENT_ITEMS': 1,
+        'DOWNLOADER_MIDDLEWARES': {'classes.misspelled_words_spider.SpiderStatusMiddleware': None}
     }
 
     rules = (
-        Rule(LinkExtractor(), callback='parse_page', follow=True),
+        Rule(LinkExtractor(), process_links='process_links', callback='parse_page', follow=True),
     )
 
     def __init__(self, start_url=None, allowed_domains=None, *args, **kwargs):
         super(MisspelledWordsSpider, self).__init__(*args, **kwargs)
         self.start_urls = [start_url]
         self.allowed_domains = allowed_domains
-        print "SPIDER INIT url = " + start_url
 
     def parse_start_url(self, response):
-        print "PARSE START"
-        return self.parse_page(response)
+        yield self.parse_page(response)
 
     def parse_page(self, response):
         if not self.active:
-            return None
+            raise CloseSpider('this spider is not active anymore')
+        else:
+            self.processed_pages += 1
 
-        self.processed_pages += 1
+            # Proccess page
+            print "PROCESS PAGE " + str(self.processed_pages)
 
-        # Proccess page
-        print "PROCESS PAGE " + str(self.processed_pages)
-        # Change pages_with_misspells if misspells founded
+            # TODO: Change pages_with_misspells if misspells founded
 
-        # Disable spider if maximum number of processed pages or pages with misspells is reached
-        if self.active:
-            if (self.pages_with_misspells >= self.MAX_PAGES_WITH_MISSPELLS):
-                print "DISABLE SPIDER"
+            # Disable spider if maximum number of processed pages or pages with misspells is reached
+            if (self.pages_with_misspells >= self.MAX_PAGES_WITH_MISSPELLS or self.processed_pages >= self.MAX_PROCESSED_PAGES):
+                print "DISABLE SPIDER, pages processed: " + str(self.processed_pages)
                 self.active = False
-                raise CloseSpider('max_pages_with_misspells_reached')
 
-            if (self.processed_pages >= self.MAX_PROCESSED_PAGES):
-                print "DISABLE SPIDER"
-                self.active = False
-                raise CloseSpider('max_processed_pages_reached')
+            print "RETURNING PARSED INFO: " + response.url
+            yield TestItem()
 
-        return None
-
-    """def parse(self, response):
-        for href in response.css('.question-summary h3 a::attr(href)'):
-            full_url = response.urljoin(href.extract())
-            yield scrapy.Request(full_url, callback=self.parse_question)
-
-    def parse_question(self, response):
-        yield {
-            'title': response.css('h1 a::text').extract()[0],
-            'votes': response.css('.question .vote-count-post::text').extract()[0],
-            'body': response.css('.question .post-text').extract()[0],
-            'tags': response.css('.question .post-tag::text').extract(),
-            'link': response.url,
-        }"""
-
+    def process_links(self, links):
+        valid_links = []
+        for link in links:
+            if not link.url.endswith(".txt"):
+                valid_links.append(link)
+        return valid_links
 
 # Ignores spider's request and responses if spider.active is set to False
 class SpiderStatusMiddleware():

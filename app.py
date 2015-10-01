@@ -5,13 +5,12 @@ from classes.crawler_script import CrawlerScript
 
 app = Flask(__name__)
 
-# Custom class that controls the Scrapy's CrawlerProcces
-crawler = CrawlerScript()
-
 # Celery task
 @task()
 def crawl_url(url):
-    return crawler.crawl(url)
+    # Custom class that controls the Scrapy's CrawlerProcces
+    crawler = CrawlerScript()
+    crawler.crawl(url)
 
 # Flask routes
 @app.route("/")
@@ -26,7 +25,7 @@ def check():
 
     # Validate received url
     if _url:
-        # Run crawling proccess in background
+        # Run crawling proccess in background within Celery task
         crawl_url(_url)
         return "Url: " + _url
     else:
