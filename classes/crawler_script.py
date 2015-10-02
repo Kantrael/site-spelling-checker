@@ -9,11 +9,13 @@ from scrapy.xlib.pydispatch import dispatcher
 
 class CrawlerScript():
 
-    def __init__(self):
+    def __init__(self, result_queue):
         self.crawler_process = CrawlerProcess(get_project_settings())
         self.items = []
+        self.result_queue = result_queue
 
     def _item_passed(self, item, response, spider):
+        #print "APPEND ITEM"
         self.items.append(item)
 
     def crawl(self, url):
@@ -32,3 +34,5 @@ class CrawlerScript():
 
         self.crawler_process.start()
         self.crawler_process.stop()
+
+        self.result_queue.put(self.items)

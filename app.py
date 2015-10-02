@@ -2,6 +2,7 @@
 from flask import Flask, render_template, json, request
 from celery import task
 from classes.crawler_script import CrawlerScript
+from multiprocessing.queues import Queue
 
 app = Flask(__name__)
 
@@ -9,8 +10,10 @@ app = Flask(__name__)
 @task()
 def crawl_url(url):
     # Custom class that controls the Scrapy's CrawlerProcces
-    crawler = CrawlerScript()
+    queue = Queue()
+    crawler = CrawlerScript(queue)
     crawler.crawl(url)
+    return queue
 
 # Flask routes
 @app.route("/")
@@ -26,7 +29,11 @@ def check():
     # Validate received url
     if _url:
         # Run crawling proccess in background within Celery task
-        crawl_url(_url)
+        queue = crawl_url(_url)
+        result_pages = queue.get()
+        if result_pages:
+            # TODO: Do something with this result
+            print "RESULT PAGES: " + str(result_pages)
         return "Url: " + _url
     else:
         return json.dumps({'html':'<span>Enter the required fields</span>'})
