@@ -2,13 +2,13 @@ import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.exceptions import CloseSpider, IgnoreRequest
-from scrapy.selector import Selector
-import re
 
-class PageWithMispells(scrapy.Item):
+
+class PageWithMisspells(scrapy.Item):
     url = scrapy.Field()
     title = scrapy.Field()
-    mispells = scrapy.Field()
+    misspells = scrapy.Field()
+
 
 class MisspelledWordsSpider(CrawlSpider):
     MAX_PAGES_WITH_MISSPELLS = 1
@@ -45,33 +45,34 @@ class MisspelledWordsSpider(CrawlSpider):
     def process_page(self, response):
         if not self.active:
             raise CloseSpider('this spider is not active anymore')
-        elif (response.status == 200):
+        elif response.status == 200:
             # Process page
             print "PROCESS PAGE " + response.url
 
             title = response.selector.xpath('//title/text()').extract()
+            body_words = response.xpath('//body/descendant-or-self::*[not(self::script)]/text()').re(r'\w+')
 
             # TODO: Change pages_with_misspells if misspells founded
-
-            words = response.xpath('//text()').re(r'\w+')
-            mispells = []
-            for word in words:
-                # Test condition, will be changed to real mispell checking
+            print "////////"
+            misspells = []
+            for word in body_words:
+                misspells.append(word)
+                # Test condition, will be changed to real misspell checking
                 if "w" in word and "o" in word:
-                    mispells.append(word)
+                    misspells.append(word)
 
-            page = PageWithMispells(url=response.url)
+            page = PageWithMisspells(url=response.url)
             page['title'] = title
-            page['mispells'] = mispells
+            page['misspells'] = misspells
 
             self.processed_pages += 1
 
             # Disable spider if maximum number of processed pages or pages with misspells is reached
-            if (self.pages_with_misspells >= self.MAX_PAGES_WITH_MISSPELLS or self.processed_pages >= self.MAX_PROCESSED_PAGES):
+            if self.pages_with_misspells >= self.MAX_PAGES_WITH_MISSPELLS or self.processed_pages >= self.MAX_PROCESSED_PAGES:
                 print "DISABLE SPIDER, pages processed: " + str(self.processed_pages)
                 self.active = False
 
-            #print "RETURNING PARSED INFO: " + response.url
+            print "RETURNING PARSED INFO"
             return page
 
     # Check that url links on a valid page (not .txt file)
@@ -82,8 +83,9 @@ class MisspelledWordsSpider(CrawlSpider):
                 valid_links.append(link)
         return valid_links
 
+
 # Ignores spider's request and responses if spider.active is set to False
-class SpiderStatusMiddleware():
+class SpiderStatusMiddleware:
 
     def process_request(self, request, spider):
         if not spider.active:
