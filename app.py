@@ -19,7 +19,7 @@ def check():
     print "URL: " + _url
 
     current_depth = 0
-    max_depth = 1
+    max_depth = 0
     visited_links = set()
     visiting_links = set([_url])
     links_to_visit = set()
@@ -39,7 +39,7 @@ def check():
                         #print "PAGE'S LINK IS NEW: " + page_link
                         links_to_visit.add(page_link)
                 #print "OUTSIDE OF A LOOP"
-                page.links = None
+                page.links.clear()
                 #print "AFTER NULLING"
 
                 pages.append(page)
@@ -57,6 +57,8 @@ def check():
         current_depth += 1
 
     print "FINAL PAGES COUNT = " + str(len(pages))
+    print "TEST WORDS: "
+    print str(pages[0].misspells)
 
     if _url:
         return "Url: " + _url

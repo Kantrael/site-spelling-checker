@@ -8,8 +8,8 @@ class PageWithMisspells:
     def __init__(self):
         self.url = None
         self.title = None
-        self.misspells = []
-        self.links = []
+        self.misspells = dict()
+        self.links = set()
 
 
 def parse(url):
@@ -52,14 +52,23 @@ def __get_words(soup):
         if len(word) > 1:
             words.append(word.lower())
 
-    return words
+    words_with_misspells = dict()
+    for word in words:
+        # TODO: Check words spelling
+
+        if word not in words_with_misspells:
+            words_with_misspells[word] = 1
+        else:
+            words_with_misspells[word] += 1
+
+    return words_with_misspells
 
 
 def __get_internal_links(soup, current_url):
     parts = urlparse(current_url)
     scheme = parts.scheme
     netloc = parts.netloc
-    page_links = []
+    page_links = set()
     try:
         for link in [h.get('href') for h in soup.find_all('a')]:
             # Skip broken urls and urls that links on current page
@@ -84,8 +93,7 @@ def __get_internal_links(soup, current_url):
                     continue
 
             # Check if link is already added
-            if final_link not in page_links:
-                page_links.append(final_link)
+            page_links.add(final_link)
 
     except Exception, ex:  # Magnificent exception handling
         print ex
