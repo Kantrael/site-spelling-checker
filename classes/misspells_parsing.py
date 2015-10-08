@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup, SoupStrainer
-from urllib2 import urlopen
+from urllib2 import urlopen, URLError
 from urlparse import urlparse
 import re
 
@@ -13,7 +13,12 @@ class PageWithMisspells:
 
 
 def parse(url):
-    content = urlopen(url)
+    print "PARSE " + url
+    try:
+        content = urlopen(url)
+    except URLError, ex:
+        return None
+
     soup = BeautifulSoup(content, "lxml")
 
     page = PageWithMisspells()
@@ -57,8 +62,8 @@ def __get_internal_links(soup, current_url):
     page_links = []
     try:
         for link in [h.get('href') for h in soup.find_all('a')]:
-            # Skip urls that links on current page
-            if link.startswith("#"):
+            # Skip broken urls and urls that links on current page
+            if not link or link.startswith("#"):
                 continue
 
             final_link = link
