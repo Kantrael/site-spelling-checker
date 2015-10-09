@@ -41,13 +41,19 @@ def parse(url):
     if not content_type or "text/html" not in content_type:
         return None
 
-    soup = BeautifulSoup(content, "lxml")
-
     page = PageWithMisspells()
-    page.url = url
-    page.title = soup.title.string
-    page.misspells = __get_words(soup)
-    page.links = __get_internal_links(soup, url)
+    try:
+        soup = BeautifulSoup(content, "lxml")
+
+        page.url = url
+        if soup.title:
+            page.title = soup.title.string
+        else:
+            page.title = url
+        page.misspells = __get_words(soup)
+        page.links = __get_internal_links(soup, url)
+    except AttributeError:
+        return None
 
     return page
 
