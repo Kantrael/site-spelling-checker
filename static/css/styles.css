@@ -11,6 +11,10 @@
     margin-bottom: 30px;
 }
 
+.good-result {
+    color: forestgreen;
+}
+
 .clickable {
     cursor: pointer;
 }
@@ -39,6 +43,7 @@
 
 .dash {
     margin-right: 10px;
+    margin-left: 10px;
 }
 
 .pull-right i {
@@ -47,6 +52,7 @@
 
 .panel-body {
     display: none;
+    padding-left: 20px;
 }
 
 .misspell-row {
@@ -60,4 +66,10 @@
 
 .word-misspell-times {
     font-style: italic;
+}
+
+.loading-image-container {
+    width: initial;
+    margin: 0;
+    padding: 0;
 }

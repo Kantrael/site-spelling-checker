@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from urllib2 import urlopen, URLError
+from httplib import InvalidURL
 from urlparse import urlparse
 import re
 import dictionaries
@@ -23,9 +24,17 @@ class PageWithMisspellsEncoder(json.JSONEncoder):
 
 
 def parse(url):
+    if not url:
+        return None
+
+    if not url.startswith('http'):
+        url = "http://" + url
+
     try:
         content = urlopen(url)
-    except (URLError, ValueError):
+    except (URLError, ValueError, InvalidURL), ex:
+        print "catched error: " + str(ex)
+        print "url: " + str(url)
         return None
 
     content_type = content.info()['Content-Type']
@@ -95,7 +104,10 @@ def __get_internal_links(soup, current_url):
                 if link.startswith('/'):
                     final_link = scheme + '://' + netloc + link
                 else:
-                    final_link = current_url + link
+                    if current_url.endswith("/"):
+                        final_link = current_url + link
+                    else:
+                        final_link = current_url + "/" + link
             else:
                 # Check if link is internal
                 domain = netloc

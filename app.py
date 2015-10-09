@@ -18,7 +18,7 @@ def check():
     _url = request.form['inputUrl']
 
     current_depth = 0
-    max_depth = 0
+    max_depth = 1
     visited_links = set()
     visiting_links = ([_url])
     links_to_visit = set()
@@ -35,7 +35,8 @@ def check():
                         links_to_visit.add(page_link)
                 page.links = None
 
-                pages.append(page)
+                if len(page.misspells) > 0:
+                    pages.append(page)
             else:
                 # If there is an error while parsing first URL - send it to the browser
                 if current_depth == 0:

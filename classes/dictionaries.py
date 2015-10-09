@@ -15,6 +15,6 @@ def init():
     global english
     english = dict()
     for word in en_file:
-        english[word] = True
+        english[word.lower()] = True
 
 init()

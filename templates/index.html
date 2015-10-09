@@ -38,6 +38,9 @@
                             </div><!-- /input-group -->
                         </form>
                     </div><!-- /.col-lg-6 -->
+                    <div class="col-lg-1 loading-image-container">
+                        <img src="/static/images/ajax-loader.gif" id="loading-indicator" style="display:none"/>
+                    </div>
                 </div>
 
             </div>
@@ -47,6 +50,55 @@
         <!-- CONTENT
         =================================-->
         <div class="container">
+
+            <div id="contentContainer">
+
+            </div>
+
+        </div>
+        <!-- /CONTENT ============-->
+
+        <!-- Script References -->
+        <script src="../static/js/jquery-1.11.3.min.js"></script>
+        <script src="../static/js/script.js"></script>
+
+        <!-- Templates -->
+        <script type="template" id="page-template">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+                    <div class="panel panel-default">
+                        <div class="panel-heading clickable panel-collapsed">
+                            <div class="panel-heading-content">
+                                <span class="badge">{MISSPELLS_COUNT}</span>
+                                <span class="page-title">{PAGE_TITLE}</span>
+                                <span class="dash">—</span>
+                                <span class="page-url"><a target="_blank" href="{PAGE_URL}">{PAGE_URL}</a></span>
+                            </div>
+                            <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
+                        </div>
+                        <div class="panel-body">
+                            {MISSPELLS}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="template" id="misspell-template">
+            <p class="misspell-row"><span class="misspelled-word">{WORD}</span><span class="word-misspell-times"> — {COUNT} times</span></p>
+        </script>
+
+        <script type="template" id="good-result-template">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2">
+                    <div class="good-result">
+                        <h4>No misspells found.</h4>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="template" id="misspells-search-results-template">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2">
                     <div class="result-label">
@@ -54,59 +106,7 @@
                     </div>
                 </div>
             </div>
+        </script>
 
-            <div class="row">
-                <div class="col-lg-8 col-lg-offset-2">
-                    <div class="panel panel-default">
-                        <div class="panel-heading clickable panel-collapsed">
-                            <div class="panel-heading-content">
-                                <span class="badge">14</span>
-                                <span class="page-title">Wikipedia, the free encyclopediaaaaaaaaaaaaaa</span>
-                                <span class="dash">—</span>
-                                <span class="page-url"><a target="_blank" href="">https://en.wikipedia.org/wiki/Main_Pagaaaaaaaaaaaaaaaaaaaaaaaaaaaaaae</a></span>
-                            </div>
-                            <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
-                        </div>
-                        <div class="panel-body">
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 3 times</span></p>
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 2 times</span></p>
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 1 times</span></p>
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 3 times</span></p>
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 3 times</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-lg-8 col-lg-offset-2">
-                    <div class="panel panel-default">
-                        <div class="panel-heading clickable panel-collapsed">
-                            <div class="panel-heading-content">
-                                <span class="badge">14</span>
-                                <span class="page-title">Wikipedia, the free encyclopediaaaaaaaaaaaaaa</span>
-                                <span class="dash">—</span>
-                                <span class="page-url"><a target="_blank" href="">https://en.wikipedia.org/wiki/Main_Pagaaaaaaaaaaaaaaaaaaaaaaaaaaaaaae</a></span>
-                            </div>
-                            <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
-                        </div>
-                        <div class="panel-body">
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 3 times</span></p>
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 2 times</span></p>
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 1 times</span></p>
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 3 times</span></p>
-                            <p class="misspell-row"><span class="misspelled-word">mispel</span><span class="word-misspell-times"> — 3 times</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-        </div>
-        <!-- /CONTENT ============-->
-
-	    <!-- script references -->
-        <script src="../static/js/jquery-1.11.3.min.js"></script>
-        <script src="../static/js/script.js"></script>
 	</body>
 </html>
