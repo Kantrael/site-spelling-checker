@@ -3,6 +3,7 @@ from urllib2 import urlopen, URLError
 from urlparse import urlparse
 import re
 import dictionaries
+import json
 
 
 class PageWithMisspells:
@@ -13,11 +14,22 @@ class PageWithMisspells:
         self.links = set()
 
 
+class PageWithMisspellsEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if not isinstance(obj, PageWithMisspells):
+            return super(PageWithMisspellsEncoder, self).default(obj)
+
+        return obj.__dict__
+
+
 def parse(url):
-    print "PARSE " + url
     try:
         content = urlopen(url)
-    except URLError, ex:
+    except (URLError, ValueError):
+        return None
+
+    content_type = content.info()['Content-Type']
+    if not content_type or "text/html" not in content_type:
         return None
 
     soup = BeautifulSoup(content, "lxml")

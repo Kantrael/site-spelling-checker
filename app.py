@@ -16,54 +16,37 @@ def main():
 def check():
     # Read url that user entered in the input field
     _url = request.form['inputUrl']
-    print "URL: " + _url
 
     current_depth = 0
     max_depth = 0
     visited_links = set()
-    visiting_links = set([_url])
+    visiting_links = {([_url])}
     links_to_visit = set()
     pages = []
 
     while current_depth <= max_depth:
-        print "DEPTH " + str(current_depth)
         for link in visiting_links:
-            #print "GET LINK " + link + "AND ADD IT TO VISITED"
             visited_links.add(link)
 
             page = misspells_parsing.parse(link)
             if page:
-                #print "PAGE RECEIVED"
                 for page_link in page.links:
                     if page_link not in visited_links and page_link not in visiting_links:
-                        #print "PAGE'S LINK IS NEW: " + page_link
                         links_to_visit.add(page_link)
-                #print "OUTSIDE OF A LOOP"
-                page.links.clear()
-                #print "AFTER NULLING"
+                page.links = None
 
                 pages.append(page)
+            else:
+                # If there is an error while parsing first URL - send it to the browser
+                if current_depth == 0:
+                    return json.dumps({'error': True})
 
-        print "HERE"
-        print "VISITED LINKS COUNT = " + str(len(visited_links))
-        print "VISITING LINKS COUNT = " + str(len(visiting_links))
-        print "LINKS TO VISIT COUNT = " + str(len(links_to_visit))
         visiting_links = links_to_visit.copy()
         links_to_visit.clear()
-        print "THERE"
-        print "VISITED LINKS COUNT = " + str(len(visited_links))
-        print "VISITING LINKS COUNT = " + str(len(visiting_links))
-        print "LINKS TO VISIT COUNT = " + str(len(links_to_visit))
         current_depth += 1
 
-    print "FINAL PAGES COUNT = " + str(len(pages))
-    print "TEST WORDS: "
-    print str(pages[0].misspells)
-
-    if _url:
-        return "Url: " + _url
-    else:
-        return json.dumps({'html': '<span>Enter the required fields</span>'})
+    # Return pages with misspells as json
+    return json.dumps(pages, cls = misspells_parsing.PageWithMisspellsEncoder)
 
 if __name__ == "__main__":
     app.run()
