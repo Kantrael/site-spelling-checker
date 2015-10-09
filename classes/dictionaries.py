@@ -1,5 +1,6 @@
 import os
 
+
 def init():
     # Dictionary path
     script_dir = os.path.dirname(__file__)

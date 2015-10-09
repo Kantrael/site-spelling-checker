@@ -20,7 +20,7 @@ def check():
     current_depth = 0
     max_depth = 0
     visited_links = set()
-    visiting_links = {([_url])}
+    visiting_links = ([_url])
     links_to_visit = set()
     pages = []
 
