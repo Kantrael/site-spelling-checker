@@ -1,7 +1,8 @@
-from bs4 import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup
 from urllib2 import urlopen, URLError
 from urlparse import urlparse
 import re
+import dictionaries
 
 
 class PageWithMisspells:
@@ -54,7 +55,8 @@ def __get_words(soup):
 
     words_with_misspells = dict()
     for word in words:
-        # TODO: Check words spelling
+        if dictionaries.english.has_key(word):
+            continue
 
         if word not in words_with_misspells:
             words_with_misspells[word] = 1
