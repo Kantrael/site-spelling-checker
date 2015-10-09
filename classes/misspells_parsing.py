@@ -24,7 +24,9 @@ class PageWithMisspellsEncoder(json.JSONEncoder):
 
 
 def parse(url):
+    #print "Parse " + str(url)
     if not url:
+        #print "error not url"
         return None
 
     if not url.startswith('http'):
@@ -33,12 +35,12 @@ def parse(url):
     try:
         content = urlopen(url)
     except (URLError, ValueError, InvalidURL), ex:
-        print "catched error: " + str(ex)
-        print "url: " + str(url)
+        #print "error " + str(ex)
         return None
 
     content_type = content.info()['Content-Type']
     if not content_type or "text/html" not in content_type:
+        #print "error not text/html"
         return None
 
     page = PageWithMisspells()
@@ -53,8 +55,10 @@ def parse(url):
         page.misspells = __get_words(soup)
         page.links = __get_internal_links(soup, url)
     except AttributeError:
+        #print "error AttributeError"
         return None
 
+    #print "return page"
     return page
 
 
@@ -64,7 +68,7 @@ def __get_words(soup):
         script.extract()    # rip it out
 
     # get content
-    content = soup.get_text()
+    content = " ".join(soup.strings)
 
     # break into lines and remove leading and trailing space on each
     lines = (line.strip() for line in content.splitlines())
@@ -103,6 +107,10 @@ def __get_internal_links(soup, current_url):
             # Skip broken urls and urls that links on current page
             if not link or link.startswith("#"):
                 continue
+
+            # Correct double-slashed links
+            if link.startswith("//"):
+                link = scheme + '://' + link[2:]
 
             final_link = link
             if not link.startswith('http'):

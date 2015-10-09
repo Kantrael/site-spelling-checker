@@ -16,15 +16,17 @@ def main():
 def check():
     # Read url that user entered in the input field
     _url = request.form['inputUrl']
+    #print "URL: " + str(_url)
 
     current_depth = 0
     max_depth = 1
+    max_pages = 10
     visited_links = set()
-    visiting_links = ([_url])
+    visiting_links = set([_url])
     links_to_visit = set()
     pages = []
 
-    while current_depth <= max_depth:
+    while current_depth <= max_depth and len(pages) < max_pages:
         for link in visiting_links:
             visited_links.add(link)
 
@@ -36,13 +38,17 @@ def check():
                 page.links = None
 
                 if len(page.misspells) > 0:
+                    print "Added page: " + page.url
                     pages.append(page)
+                    if not len(pages) < max_pages:
+                        break
             else:
                 # If there is an error while parsing first URL - send it to the browser
                 if current_depth == 0:
                     return json.dumps({'error': True})
 
         visiting_links = links_to_visit.copy()
+        #print "links to visit: " + str(len(visiting_links))
         links_to_visit.clear()
         current_depth += 1
 
