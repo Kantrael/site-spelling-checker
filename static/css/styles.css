@@ -73,3 +73,17 @@
     margin: 0;
     padding: 0;
 }
+
+.input-subgroup {
+    float: right;
+}
+
+.input-subgroup label {
+    font-size: 15px;
+    font-weight: normal;
+}
+
+.input-subgroup input {
+    width: 70px;
+    display: inline-block;
+}

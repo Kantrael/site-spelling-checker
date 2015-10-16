@@ -5,7 +5,10 @@ $(document).ready(function() {
         $.ajax({
             type: 'POST',
             url: '/check',
-            data: {inputUrl: $('#inputUrl').val()},
+            data: {
+                inputUrl: $('#inputUrl').val(),
+                maxPages: $('#maxPages').val(),
+            },
             success: function(response) {
                 $('#loading-indicator').hide();
                 var responseJson = JSON.parse(response);
@@ -61,6 +64,21 @@ $(document).ready(function() {
                 alert("Can not make request to this URL.");
             }
         });
+    });
+
+    $("#maxPages").bind("change paste keyup", function() {
+        var MIN_PAGES = 1;
+        var MAX_PAGES = 300;
+        var value = $(this).val();
+        if (value != "") {
+            if (value < MIN_PAGES) {
+                value = MIN_PAGES;
+            }
+            if (value > MAX_PAGES) {
+                value = MAX_PAGES;
+            }
+            $(this).val(value);
+        }
     });
 });
 
