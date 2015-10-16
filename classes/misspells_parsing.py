@@ -23,7 +23,7 @@ class PageWithMisspellsEncoder(json.JSONEncoder):
         return obj.__dict__
 
 
-def parse(url):
+def parse(url, allowed_words):
     #print "Parse " + str(url)
     if not url:
         #print "error not url"
@@ -52,7 +52,7 @@ def parse(url):
             page.title = soup.title.string
         else:
             page.title = url
-        page.misspells = __get_words(soup)
+        page.misspells = __get_words(soup, allowed_words)
         page.links = __get_internal_links(soup, url)
     except AttributeError:
         #print "error AttributeError"
@@ -62,7 +62,10 @@ def parse(url):
     return page
 
 
-def __get_words(soup):
+def __get_words(soup, allowed_words):
+    if not allowed_words:
+        allowed_words = dict()
+
     # kill all unnecessary elements
     for script in soup(["script", "style", "[document]", "head", "title", "meta"]):
         script.extract()    # rip it out
@@ -86,7 +89,7 @@ def __get_words(soup):
 
     words_with_misspells = dict()
     for word in words:
-        if dictionaries.english.has_key(word):
+        if dictionaries.english.has_key(word) or allowed_words.has_key(word):
             continue
 
         if word not in words_with_misspells:

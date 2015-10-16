@@ -17,6 +17,17 @@ def check():
     # Read url that user entered in the input field
     _url = request.form['inputUrl']
     _max_pages = request.form['maxPages']
+    _allowed_words = request.form['allowedWords']
+
+    # Prepare user-defined words list
+    if _allowed_words:
+        allowed_words_list = _allowed_words.split()
+    else:
+        allowed_words_list = []
+
+    allowed_words = dict()
+    for word in allowed_words_list:
+        allowed_words[word.lower()] = True
 
     min_pages = 1
     default_pages = 10
@@ -47,7 +58,7 @@ def check():
         for link in visiting_links:
             visited_links.add(link)
 
-            page = misspells_parsing.parse(link)
+            page = misspells_parsing.parse(link, allowed_words)
             if page:
                 for page_link in page.links:
                     if page_link not in visited_links and page_link not in visiting_links:

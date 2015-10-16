@@ -33,7 +33,7 @@
                             <div class="input-group">
                                 <input type="text" id="inputUrl" class="form-control" placeholder="Site URL...">
                                 <span class="input-group-btn">
-                                    <button id="buttonCheck" class="btn btn-default" type="button">Check!</button>
+                                    <button id="buttonCheck" class="btn btn-info" type="button">Check!</button>
                                 </span>
                             </div><!-- /input-group -->
                         </form>
@@ -44,7 +44,11 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-3 col-lg-offset-6">
+                    <div class="col-lg-1 col-lg-offset-3">
+                        <button type="button" id="btnOpenDictionary" class="btn btn-default" data-toggle="modal" data-target="#allowedWordsWindow">My Dictionary</button>
+                    </div>
+
+                    <div class="col-lg-3 col-lg-offset-2">
                         <div class="input-subgroup">
                             <label for="maxPages">Maximum pages:</label>
                             <input type="number" id="maxPages" class="form-control" min="1" max="300" value="10">
@@ -67,8 +71,35 @@
         </div>
         <!-- /CONTENT ============-->
 
+        <!-- Modal -->
+        <div id="allowedWordsWindow" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" id="btnCloseDictionary" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">My Dictionary</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Here you can add words that should not be treated as misspelled:</p>
+                        <div class="form-group">
+                            <label for="comment">Allowed words (one per row):</label>
+                            <textarea class="form-control" rows="5" id="allowedWords"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btnClearDictionary" class="btn btn-default">Clear</button>
+                        <button type="button" id="btnApplyDictionary" class="btn btn-info" data-dismiss="modal">Apply</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
         <!-- Script References -->
         <script src="../static/js/jquery-1.11.3.min.js"></script>
+        <script src="../static/js/bootstrap.min.js"></script>
         <script src="../static/js/script.js"></script>
 
         <!-- Templates -->

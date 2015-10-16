@@ -1,13 +1,24 @@
+var LOCAL_STORAGE_WORDS_KEY = "kantrael.sitespellingchecker.allowedwords";
+
 $(document).ready(function() {
+    // BUTTON LISTENERS
     $('#buttonCheck').click(function(e) {
         e.preventDefault();
         $('#loading-indicator').show();
+
+        // Get list of user-specified words
+        var allowedWords;
+        if (supports_html5_storage()) {
+            allowedWords = localStorage.getItem(LOCAL_STORAGE_WORDS_KEY);
+        }
+
         $.ajax({
             type: 'POST',
             url: '/check',
             data: {
                 inputUrl: $('#inputUrl').val(),
                 maxPages: $('#maxPages').val(),
+                allowedWords: allowedWords
             },
             success: function(response) {
                 $('#loading-indicator').hide();
@@ -80,6 +91,25 @@ $(document).ready(function() {
             $(this).val(value);
         }
     });
+
+    $('#btnApplyDictionary').click(function(e) {
+        if (supports_html5_storage()) {
+            localStorage.setItem(LOCAL_STORAGE_WORDS_KEY, $("#allowedWords").val());
+        }
+    });
+
+    $('#btnClearDictionary').click(function(e) {
+        $("#allowedWords").val("");
+    });
+
+    $('#btnOpenDictionary').click(function(e) {
+        if (supports_html5_storage()) {
+            var allowedWords = localStorage.getItem(LOCAL_STORAGE_WORDS_KEY);
+            if (allowedWords) {
+                $("#allowedWords").val(allowedWords);
+            }
+        }
+    });
 });
 
 $(document).on('click', '.panel-heading.clickable', function(e){
@@ -99,3 +129,11 @@ $(document).on('click', '.panel-heading.clickable', function(e){
         }
     }
 });
+
+function supports_html5_storage() {
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+        return false;
+    }
+}
