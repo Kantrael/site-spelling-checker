@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from urllib2 import urlopen, URLError
+from urllib2 import urlopen, Request, URLError
 from httplib import InvalidURL
 from urlparse import urlparse
 import re
@@ -24,7 +24,7 @@ class PageWithMisspellsEncoder(json.JSONEncoder):
 
 
 def parse(url, allowed_words):
-    #print "Parse " + str(url)
+    # print "Parse " + str(url)
     if not url:
         #print "error not url"
         return None
@@ -33,7 +33,9 @@ def parse(url, allowed_words):
         url = "http://" + url
 
     try:
-        content = urlopen(url)
+        # Custom User-Agent to prevent websites request refusing
+        req = Request(url, headers={'User-Agent': "Magic Browser"})
+        content = urlopen(req)
     except (URLError, ValueError, InvalidURL), ex:
         #print "error " + str(ex)
         return None

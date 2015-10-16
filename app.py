@@ -71,6 +71,7 @@ def check():
                     if not len(pages) < max_pages_to_show:
                         break
             else:
+                print "After parsing - error"
                 # If there is an error while parsing first URL - send it to the browser
                 if current_depth == 0:
                     return json.dumps({'error': True})
