@@ -1,17 +1,13 @@
-var LOCAL_STORAGE_WORDS_KEY = "kantrael.sitespellingchecker.allowedwords";
+var LS_KEY_WORDS = "kantrael.sitespellingchecker.allowedwords";
+var MIN_PAGES = 1;
+var MAX_PAGES = 300;
 
 $(document).ready(function() {
-    // BUTTON LISTENERS
     $('#buttonCheck').click(function(e) {
         e.preventDefault();
         $('#loading-indicator').show();
 
-        // Get list of user-specified words
-        var allowedWords;
-        if (supports_html5_storage()) {
-            allowedWords = localStorage.getItem(LOCAL_STORAGE_WORDS_KEY);
-        }
-
+        var allowedWords = supportsHtml5Storage() ? localStorage.getItem(LS_KEY_WORDS) : null;
         $.ajax({
             type: 'POST',
             url: '/check',
@@ -23,51 +19,16 @@ $(document).ready(function() {
             success: function(response) {
                 $('#loading-indicator').hide();
                 var responseJson = JSON.parse(response);
-                if (responseJson.error == true) {
+
+                if (responseJson.error) {
                     alert("URL is incorrect or website is unavailable.");
-                } else if (responseJson.length == 0) {
-                    console.log("No errors found");
-                    $('#contentContainer').empty();
-                    var resultHeaderTemplate = document.querySelector('#misspells-search-results-template').innerHTML;
-                    var goodResultTemplate = document.querySelector('#good-result-template').innerHTML;
-                    $('#contentContainer').append(resultHeaderTemplate);
-                    $('#contentContainer').append(goodResultTemplate);
+                    return;
+                }
+
+                if (responseJson.length == 0) {
+                    showGoodResult();
                 } else {
-                    // TODO: Show pages with misspells
-                    $('#contentContainer').empty();
-
-                    var resultHeaderTemplate = document.querySelector('#misspells-search-results-template').innerHTML;
-                    var pageTemplate = document.querySelector('#page-template').innerHTML;
-                    var misspellTemplate = document.querySelector('#misspell-template').innerHTML;
-
-                    var html = "";
-
-                    for (var i = 0; i < responseJson.length; i++) {
-                        var page = responseJson[i];
-                        var misspells = page["misspells"];
-
-                        var pageHtml = pageTemplate;
-                        pageHtml = pageHtml.replace(/\{PAGE_TITLE\}/, page["title"]);
-                        pageHtml = pageHtml.replace(/\{PAGE_URL\}/g, page["url"]);
-
-                        var misspellsCount = 0;
-                        var misspellsHtml = "";
-                        for (var word in misspells) {
-                            if (misspells.hasOwnProperty(word)) {
-                                var wordHtml = misspellTemplate.replace(/\{WORD\}/, word);
-                                wordHtml = wordHtml.replace(/\{COUNT\}/, misspells[word]);
-                                misspellsHtml += wordHtml + "\n";
-                                misspellsCount++;
-                            }
-                        }
-
-                        pageHtml = pageHtml.replace(/\{MISSPELLS\}/, "" + misspellsHtml);
-                        pageHtml = pageHtml.replace(/\{MISSPELLS_COUNT\}/, "" + misspellsCount);
-                        html += pageHtml + "\n\n";
-                    }
-
-                    $('#contentContainer').append(resultHeaderTemplate);
-                    $('#contentContainer').append(html);
+                    showMisspells(responseJson);
                 }
             },
             error: function(error) {
@@ -78,23 +39,17 @@ $(document).ready(function() {
     });
 
     $("#maxPages").bind("change paste keyup", function() {
-        var MIN_PAGES = 1;
-        var MAX_PAGES = 300;
         var value = $(this).val();
-        if (value != "") {
-            if (value < MIN_PAGES) {
-                value = MIN_PAGES;
-            }
-            if (value > MAX_PAGES) {
-                value = MAX_PAGES;
-            }
+        if (value) {
+            value =  Math.max(value, MIN_PAGES);
+            value =  Math.min(value, MAX_PAGES);
             $(this).val(value);
         }
     });
 
     $('#btnApplyDictionary').click(function(e) {
-        if (supports_html5_storage()) {
-            localStorage.setItem(LOCAL_STORAGE_WORDS_KEY, $("#allowedWords").val());
+        if (supportsHtml5Storage()) {
+            localStorage.setItem(LS_KEY_WORDS, $("#allowedWords").val());
         }
     });
 
@@ -103,8 +58,8 @@ $(document).ready(function() {
     });
 
     $('#btnOpenDictionary').click(function(e) {
-        if (supports_html5_storage()) {
-            var allowedWords = localStorage.getItem(LOCAL_STORAGE_WORDS_KEY);
+        if (supportsHtml5Storage()) {
+            var allowedWords = localStorage.getItem(LS_KEY_WORDS);
             if (allowedWords) {
                 $("#allowedWords").val(allowedWords);
             }
@@ -120,8 +75,7 @@ $(document).on('click', '.panel-heading.clickable', function(e){
             $(this).parents('.panel').find('.panel-body').slideDown();
             $(this).removeClass('panel-collapsed');
             $(this).find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-        }
-        else {
+        } else {
             // collapse the panel
             $(this).parents('.panel').find('.panel-body').slideUp();
             $(this).addClass('panel-collapsed');
@@ -130,10 +84,49 @@ $(document).on('click', '.panel-heading.clickable', function(e){
     }
 });
 
-function supports_html5_storage() {
+function supportsHtml5Storage() {
     try {
         return 'localStorage' in window && window['localStorage'] !== null;
     } catch (e) {
         return false;
     }
+}
+
+function showGoodResult() {
+    var contentContainer = $('#contentContainer');
+    contentContainer.empty();
+    contentContainer.append(document.querySelector('#misspells-search-results-template').innerHTML);
+    contentContainer.append(document.querySelector('#good-result-template').innerHTML);
+}
+
+function showMisspells(responseJson) {
+    var contentContainer = $('#contentContainer');
+    contentContainer.empty();
+    var html = "";
+    for (var i = 0; i < responseJson.length; i++) {
+        var page = responseJson[i];
+        var misspells = page["misspells"];
+
+        var pageHtml = document.querySelector('#page-template').innerHTML;
+        pageHtml = pageHtml.replace(/\{PAGE_TITLE\}/, page["title"]);
+        pageHtml = pageHtml.replace(/\{PAGE_URL\}/g, page["url"]);
+
+        var misspellsCount = 0;
+        var misspellsHtml = "";
+        for (var word in misspells) {
+            if (misspells.hasOwnProperty(word)) {
+                var wordHtml = document.querySelector('#misspell-template').innerHTML;
+                wordHtml = wordHtml.replace(/\{WORD\}/, word);
+                wordHtml = wordHtml.replace(/\{COUNT\}/, misspells[word]);
+
+                misspellsHtml += wordHtml + "\n";
+                misspellsCount++;
+            }
+        }
+        pageHtml = pageHtml.replace(/\{MISSPELLS\}/, "" + misspellsHtml);
+        pageHtml = pageHtml.replace(/\{MISSPELLS_COUNT\}/, "" + misspellsCount);
+        html += pageHtml + "\n\n";
+    }
+    contentContainer.append(document.querySelector('#misspells-search-results-template').innerHTML);
+    contentContainer.append(html);
 }
